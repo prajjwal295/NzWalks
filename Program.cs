@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NzWalks.API.Data;
+using NzWalks.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddSwaggerGen();
 // here instead of getting the connection strings directly we pass that dependency in the program.cs file 
 builder.Services.AddDbContext<NzWalksDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionStrings")));
 
+builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
 
 var app = builder.Build();
 

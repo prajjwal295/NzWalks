@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NzWalks.API.Data;
 using NzWalks.API.Model.Domain;
 using NzWalks.API.Model.DTO;
+using NzWalks.API.Repositories;
 
 namespace NzWalks.API.Controllers
 {
@@ -10,18 +11,18 @@ namespace NzWalks.API.Controllers
     [ApiController]
     public class RegionController : ControllerBase
     {
-        private readonly NzWalksDbContext _dbContext;
-        // constructor DI of the db context
-        public RegionController(NzWalksDbContext dbContext)
+        private readonly IRegionRepository _regionRepository;
+
+        public RegionController(IRegionRepository regionRepository)
         {
-            this._dbContext = dbContext;
+            this._regionRepository = regionRepository;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
-            var resultDomain = _dbContext.Regions.ToList();
-
+            //var resultDomain = _dbContext.Regions.ToList();
+            var resultDomain = await _regionRepository.GetAllAsync();
             var resultDto = new List<RegionDto>();
 
             foreach(var result in resultDomain)
@@ -39,9 +40,9 @@ namespace NzWalks.API.Controllers
 
         [Route("{id:Guid}")]
         [HttpGet]
-        public IActionResult GetRegionById([FromRoute] Guid id)
+        public async Task<IActionResult> GetRegionById([FromRoute] Guid id)
         {
-            var resultDomain = _dbContext.Regions.Find(id);
+            var resultDomain = await _regionRepository.GetByIdAsync(id);
 
             if (resultDomain == null)
                 return NotFound();
@@ -58,7 +59,7 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateRegionRequestDto createRegionRequestDto)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateRegionRequestDto createRegionRequestDto)
         {
             var regionDomain = new Region()
             {
@@ -67,16 +68,14 @@ namespace NzWalks.API.Controllers
                 RegionImageUrl = createRegionRequestDto.RegionImageUrl
             };
 
-            // this will add the data into the db;
-            _dbContext.Regions.Add(regionDomain);
-            _dbContext.SaveChanges();
+            var region =  await _regionRepository.CreateAsync(regionDomain);
 
             var regionResponse = new RegionDto()
             {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
+                Id = region.Id,
+                Name = region.Name,
+                Code = region.Code,
+                RegionImageUrl = region.RegionImageUrl
             };
 
             // createdAtActions gives the status code 200
@@ -86,18 +85,19 @@ namespace NzWalks.API.Controllers
 
         [Route("{id:Guid}")]
         [HttpPut]
-        public IActionResult Update([FromRoute] Guid id , [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        public async Task<IActionResult> Update([FromRoute] Guid id , [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
-            var regionDomainModal = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain = new Region()
+            {
+                Code = updateRegionRequestDto.Code,
+                Name = updateRegionRequestDto.Name,
+                RegionImageUrl = updateRegionRequestDto.RegionImageUrl
+            };
+
+            var regionDomainModal = await _regionRepository.UpdateAsync(id , regionDomain);
 
             if (regionDomainModal == null)
                 return NotFound();
-
-            regionDomainModal.Code = updateRegionRequestDto.Code;
-            regionDomainModal.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
-            regionDomainModal.Name = updateRegionRequestDto.Name;
-
-            _dbContext.SaveChanges();
 
             var regionResponse = new RegionDto()
             {
@@ -112,15 +112,12 @@ namespace NzWalks.API.Controllers
 
         [Route("{id:Guid}")]
         [HttpDelete]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var regionDomainModal = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var response = await _regionRepository.DeleteAsync(id);
 
-            if (regionDomainModal == null)
+            if (response == null)
                 return NotFound();
-
-            _dbContext.Regions.Remove(regionDomainModal);
-            _dbContext.SaveChanges();
 
             return Ok();
         }
