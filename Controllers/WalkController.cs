@@ -21,10 +21,12 @@ namespace NzWalks.API.Controllers
             this._mapper = mapper;
         }
 
+        //Applying the filtering here based on column name and column value
+        // https://localhost:7024/api/Walk?filterOn=name&filterQuery=the&sortBy=name&isAscending=false&pageNumber=1&pageSize=1000
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery] string? filterOn , [FromQuery]string ? filterQuery , [FromQuery] string? sortBy , [FromQuery] bool? isAscending = true, [FromQuery] int pageNumber = 1 , [FromQuery] int pageSize = 1000)
         {
-            List<Walk> walk = await _walkRepository.GetAllAsync();
+            List<Walk> walk = await _walkRepository.GetAllAsync(pageNumber, pageSize, isAscending ?? true, sortBy, filterOn, filterQuery);
             return Ok(_mapper.Map<List<WalkDto>>(walk));
         }
 

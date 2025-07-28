@@ -4,7 +4,9 @@ namespace NzWalks.API.Data
 {
     public class NzWalksDbContext : DbContext
     {
-        public NzWalksDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        // IF use multiple db context into our application , we need to specify the type of dbcontenxt as well to define it uniqueness 
+        // rather than any generic dbcontxt
+        public NzWalksDbContext(DbContextOptions<NzWalksDbContext> dbContextOptions) : base(dbContextOptions)
         {
 
         }
