@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NzWalks.API.Model.DTO;
 using NzWalks.API.Repositories;
 
 namespace NzWalks.API.Controllers
@@ -14,10 +15,12 @@ namespace NzWalks.API.Controllers
         // We have injected this package in the program.cs
 
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ITokenRepositroy _tokenRepository;
 
-        public AuthController(UserManager<IdentityUser> userManager)
+        public AuthController(UserManager<IdentityUser> userManager , ITokenRepositroy tokenRepositroy )
         {
             this._userManager = userManager;
+            this._tokenRepository = tokenRepositroy;
         }
         //POST : /api/Auth/Register
 
@@ -48,6 +51,40 @@ namespace NzWalks.API.Controllers
             }
 
             return BadRequest("User Registration Failed!!");
+        }
+
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginRequestDto.UserName);
+
+            if(user!=null)
+            {
+                var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+                if(checkPasswordResult)
+                {
+                    //GetRoles
+
+                   var roles =  await _userManager.GetRolesAsync(user);
+
+                    if(roles!=null)
+                    {
+                        //Create Token
+                        var jwtToken =  _tokenRepository.CreateJWTToken(user, roles.ToList());
+
+                        var response = new LoginResponseDto
+                        {
+                            JwtToken = jwtToken
+                        };
+
+                        return Ok(jwtToken);
+                    }
+                }
+            }
+
+            return BadRequest("User Login Failed!!");
         }
     }
 }
