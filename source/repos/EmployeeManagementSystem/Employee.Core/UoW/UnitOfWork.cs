@@ -1,31 +1,61 @@
 ﻿using Employee.Dal.Context;
+using Employee.Dal.Entities;
 using Employee.Dal.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Employee.Dal.Repositories;
 
-namespace Employee.Dal.UoW
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private readonly EmployeeDbContext _employeeDbContext;
+
+    private IEmployeeRepository employeeRepository;
+    private GenericRepository<Department> departmentRepository;
+    private IUserRepository userRepository;
+
+    public UnitOfWork(EmployeeDbContext employeeDbContext)
     {
-        private readonly EmployeeDbContext _employeeDbContext;
-        public IDepartmentRepository Departments { get; private set; }
+        _employeeDbContext = employeeDbContext;
+    }
 
-        public IEmployeeRepository Employees { get; private set; }
-
-
-        public UnitOfWork(EmployeeDbContext employeeDbContext , IDepartmentRepository departmentRepository , IEmployeeRepository employeeRepository) {
-            _employeeDbContext = employeeDbContext;
-            Departments = departmentRepository;
-            Employees = employeeRepository;
-        }
-
-        // centralised Saving Operation for the whole system
-        public async Task<int> SaveChangesAsync()
+    public IEmployeeRepository Employees
+    {
+        get
         {
-            return await _employeeDbContext.SaveChangesAsync();
+            if (employeeRepository == null)
+                employeeRepository = new EmployeeRepository(_employeeDbContext);
+
+            return employeeRepository;
         }
+    }
+
+    public IGenericRepository<Department> Departments
+    {
+        get
+        {
+            if (departmentRepository == null)
+                departmentRepository = new GenericRepository<Department>(_employeeDbContext);
+
+            return departmentRepository;
+        }
+    }
+
+    public IUserRepository Users
+    {
+        get
+        {
+            if (userRepository == null)
+                userRepository = new UserRepository(_employeeDbContext);
+
+            return userRepository;
+        }
+    }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _employeeDbContext.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        _employeeDbContext.Dispose();
     }
 }

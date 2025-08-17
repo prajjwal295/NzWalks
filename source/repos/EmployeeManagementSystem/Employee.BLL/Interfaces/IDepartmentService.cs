@@ -1,20 +1,15 @@
-﻿using Employee.Application.DTOs.Requests;
-using Employee.Application.DTOs.Response;
-using Employee.BLL.BOs;
-using System;
+﻿using Employee.BLL.DTOs;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Employee.BLL.Interfaces
 {
     public interface IDepartmentService
     {
-        public Task<List<DepartmentDto>> GetAllAsync();
-        public Task<DepartmentDto?> GetByIdAsync(int id);
-        public Task<DepartmentDto> CreateAsync(DepartmentDto department);
-        public Task<DepartmentDto?> Delete(int id);
-        public Task<DepartmentDto?> Update(int id, DepartmentDto department);
+        Task<List<DepartmentDto>> GetAllAsync();
+        Task<DepartmentDto?> GetByIdAsync(int id);
+        Task<DepartmentDto> CreateAsync(DepartmentDto department);
+        Task<DepartmentDto?> UpdateAsync(int id, DepartmentDto department);
+        Task<DepartmentDto?> DeleteAsync(int id);
     }
 }

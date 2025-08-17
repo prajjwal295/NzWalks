@@ -1,6 +1,4 @@
-﻿using Employee.Application.DTOs.Requests;
-using Employee.Application.DTOs.Response;
-using Employee.BLL.BOs;
+﻿using Employee.BLL.DTOs;
 using Employee.Dal.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,7 +13,7 @@ namespace Employee.BLL.Interfaces
         public Task<List<EmployeeDto>> GetAllAsync();
         public Task<EmployeeDto?> GetByIdAsync(int id);
         public Task<EmployeeDto> CreateAsync(EmployeeDto employee);
-        public Task<EmployeeDto?> Delete(int id);
-        public Task<EmployeeDto?> Update(int id, EmployeeDto employee);
+        public Task<EmployeeDto?> DeleteAsync(int id);
+        public Task<EmployeeDto?> UpdateAsync(int id, EmployeeDto employee);
     }
 }

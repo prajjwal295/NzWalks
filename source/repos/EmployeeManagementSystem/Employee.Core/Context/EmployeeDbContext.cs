@@ -1,4 +1,5 @@
-﻿using Employee.Dal.Entities;
+﻿using Employee.Dal.Configurations;
+using Employee.Dal.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,13 @@ namespace Employee.Dal.Context
 
         public DbSet<Employees> Employees { get; set; }
         public DbSet<Department> Departments { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new DepartmentConfigurations());
+            modelBuilder.ApplyConfiguration(new EmployeeConfigurations());
+            modelBuilder.ApplyConfiguration(new UserConfigurations());
             base.OnModelCreating(modelBuilder);
         }
 

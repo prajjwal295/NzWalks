@@ -1,38 +1,27 @@
-﻿using Employee.Dal.Entities;
+﻿using Employee.Dal.Context;
+using Employee.Dal.Entities;
 using Employee.Dal.Interfaces;
-using System;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Employee.Dal.Repositories
 {
-    public class EmployeeRepository : IEmployeeRepository
+    public class EmployeeRepository : GenericRepository<Employees> , IEmployeeRepository
     {
-        public Task<Employees> CreateAsync(Employees employee)
+        private readonly EmployeeDbContext _dbContext;
+
+        public EmployeeRepository(EmployeeDbContext dbContext) : base(dbContext)
         {
-            throw new NotImplementedException();
+            this._dbContext = dbContext;
         }
 
-        public Task<Employees?> Delete(int id)
+        public async Task<bool> IsEmailInUse(string email)
         {
-            throw new NotImplementedException();
-        }
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Email == email);
 
-        public Task<List<Employees>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Employees?> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Employees?> Update(int id, Employees employee)
-        {
-            throw new NotImplementedException();
+            return employee != null;
         }
     }
 }

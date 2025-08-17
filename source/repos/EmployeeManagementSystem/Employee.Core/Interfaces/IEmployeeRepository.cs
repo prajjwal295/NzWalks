@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace Employee.Dal.Interfaces
 {
-    public interface IEmployeeRepository
+    public interface IEmployeeRepository : IGenericRepository<Employees>
     {
-        public  Task<List<Employees>> GetAllAsync();
-        public  Task<Employees?> GetByIdAsync(int id);
-        public Task<Employees>CreateAsync(Employees employee);
-        public Task<Employees?> Delete(int id);
-        public Task<Employees?> Update(int id , Employees employee);
+        public Task<bool> IsEmailInUse(string email);
     }
 }
